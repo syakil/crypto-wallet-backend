@@ -16,7 +16,7 @@ Make sure you have the following installed on your system:
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/syakil/insgina
+    git clone https://github.com/syakil/crypto-wallet-backend
     ```
 
 2. Navigate to the project directory:
