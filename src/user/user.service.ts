@@ -3,10 +3,15 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../../prisma.service';
 import { hash } from 'bcryptjs';
+import { jwtConstants } from '../auth/constants';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private jwtService: JwtService,
+  ) {}
 
   async register(createUserDto: CreateUserDto) {
     const user = await this.findByEmail(createUserDto.email);
@@ -19,15 +24,17 @@ export class UserService {
         password: await hash(createUserDto.password, 10),
       },
     });
-    const { password, ...result } = NewUser;
-    return result;
+    return await this.jwtService.signAsync(
+      { id: NewUser.id },
+      { expiresIn: '1 days', secret: jwtConstants.secret },
+    );
   }
 
   findAll() {
     return `This action returns all user`;
   }
   async findByEmail(email: string) {
-    return await this.prisma.user.findUnique({
+    return this.prisma.user.findUnique({
       where: {
         email,
       },
@@ -35,11 +42,12 @@ export class UserService {
   }
 
   async findById(id: string) {
-    return await this.prisma.user.findUnique({
+    return this.prisma.user.findUnique({
       select: {
         id: true,
         name: true,
         email: true,
+        balance: true,
       },
       where: {
         id,

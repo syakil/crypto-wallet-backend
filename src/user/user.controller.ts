@@ -13,6 +13,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import {ResponseHelper} from "../common/response.helper";
 import {AuthGuard} from "../auth/auth.guard";
 
+@UseGuards(AuthGuard)
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -34,7 +35,6 @@ export class UserController {
     return this.userService.findAll();
   }
 
-  @UseGuards(AuthGuard)
   @Get(':id')
   async findOne(@Param() param) {
     const data = await this.userService.findById(param.id);

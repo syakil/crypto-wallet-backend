@@ -4,6 +4,7 @@ import { UserService } from '../user/user.service';
 import { compare } from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
+import {Request} from "express";
 
 @Injectable()
 export class AuthService {
@@ -25,5 +26,23 @@ export class AuthService {
     } else {
       throw new Error('Unauthorized');
     }
+  }
+  async getUserIdFromToken(token: string): Promise<string | null> {
+    try {
+      const decoded = await this.jwtService.verifyAsync(token, {
+        secret: jwtConstants.secret,
+      });
+
+      // Extract user ID from the decoded token
+      return decoded['id'];
+    } catch (error) {
+      // Handle invalid or expired token
+      return null;
+    }
+  }
+
+  extractTokenFromHeader(request: Request): string | undefined {
+    const [type, token] = request.headers.authorization?.split(' ') ?? [];
+    return type === 'Bearer' ? token : undefined;
   }
 }
